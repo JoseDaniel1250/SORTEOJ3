@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Mi Web</title>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- LOGO -->
+    <img src="LOGO.png" alt="Logo" class="logo">
+
+    <!-- BOTONES -->
+    <div class="buttons">
+        <img src="B_ELEGIR.png" class="btn-img" onclick="accionElegir()">
+        <img src="B_PESOS.png" class="btn-img" onclick="accionPesos()">
+        <img src="B_ALEATORIO.png" class="btn-img" onclick="accionAleatorio()">
+    </div>
+
+</div>
+
+<!-- 🔥 MODAL (SOLO PARA ALEATORIO) -->
+<div id="modal" class="modal hidden">
+    <div class="modal-content">
+
+        <h2>Número de oportunidades</h2>
+
+        <input type="number" id="cantidad" placeholder="Ej: 5" min="1">
+
+        <div class="modal-buttons">
+            <button onclick="confirmar()">Confirmar</button>
+            <button onclick="cerrarModal()">Cancelar</button>
+        </div>
+
+    </div>
+</div>
+
+
+
+<!-- 🎯 RESULTADOS -->
+<div id="resultados" class="resultados hidden">
+    <h2>Tus números</h2>
+
+    <div id="listaNumeros" class="numeros"></div>
+
+    <button onclick="cerrarResultados()" class="btn-cerrar">
+        Continuar
+    </button>
+</div>
+
+<div id="selector" class="resultados hidden">
+    <h2 id="tituloSelector">¡BUENA SUERTE!</h2>
+
+    <div id="panelNumeros" class="numeros"></div>
+
+    <div class="selector-nav">
+    <button id="btnAnterior" onclick="anteriorPagina()">Anterior</button>
+    <button id="btnCancelar" onclick="cerrarSelector()">Cancelar</button>
+    <button id="btnSiguiente" onclick="siguientePagina()">Siguiente</button>
+</div>
+
+    <button onclick="confirmarSeleccion()" class="btn-cerrar">
+        Confirmar selección
+    </button>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
+   
