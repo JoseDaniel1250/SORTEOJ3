@@ -1,11 +1,13 @@
 /* ===================== */
 /* 🎯 VARIABLES GLOBALES */
 /* ===================== */
-let paginaActual = 0;
-let seleccionados = new Set();
 
-// 🔒 Números únicos globales (000–999)
-let numerosGlobales = new Set();
+// 🔒 Persistencia real (simulada)
+let numerosUsados = new Set(
+    JSON.parse(localStorage.getItem("numerosUsados")) || []
+);
+
+let numerosSeleccionados = [];
 
 /* ===================== */
 /* 🎯 EFECTO TOUCH */
@@ -38,12 +40,8 @@ botones.forEach(btn => {
 /* ===================== */
 
 function accionElegir() {
-    paginaActual = 0;
-    seleccionados.clear();
-
+    generarPanelAleatorio();
     document.getElementById("selector").classList.remove("hidden");
-
-    renderPagina(); // 🔥 TODO se controla desde aquí
 }
 
 function accionPesos() {
@@ -67,7 +65,7 @@ function cerrarModal() {
 }
 
 /* ===================== */
-/* 🎯 CONFIRMAR */
+/* 🎯 CONFIRMAR ALEATORIO */
 /* ===================== */
 
 function confirmar() {
@@ -79,15 +77,23 @@ function confirmar() {
     }
 
     cerrarModal();
-
     generarNumeros(parseInt(cantidad));
 }
 
 /* ===================== */
-/* 🎯 GENERAR NÚMEROS */
+/* 🎯 GUARDAR ESTADO */
+/* ===================== */
+
+function guardarEstado() {
+    localStorage.setItem("numerosUsados", JSON.stringify([...numerosUsados]));
+}
+
+/* ===================== */
+/* 🎯 GENERAR NÚMEROS ALEATORIOS */
 /* ===================== */
 
 function generarNumeros(cantidad) {
+
     const contenedor = document.getElementById("listaNumeros");
     const resultados = document.getElementById("resultados");
 
@@ -95,28 +101,24 @@ function generarNumeros(cantidad) {
     resultados.classList.remove("hidden");
 
     let numerosFinales = [];
-    let disponibles = 1000 - numerosGlobales.size;
+    let disponibles = obtenerDisponibles();
 
-    if (disponibles <= 0) {
-        alert("Ya se generaron todos los números (000-999)");
+    if (disponibles.length === 0) {
+        alert("🔥 TODOS LOS NÚMEROS HAN SIDO TOMADOS");
         return;
     }
 
-    if (cantidad > disponibles) {
-        alert(`Solo quedan ${disponibles} números disponibles`);
-        cantidad = disponibles;
+    if (cantidad > disponibles.length) {
+        cantidad = disponibles.length;
     }
 
-    while (numerosFinales.length < cantidad) {
-        let numero = Math.floor(Math.random() * 1000);
+    let mezclados = mezclarArray(disponibles);
 
-        if (!numerosGlobales.has(numero)) {
-            numerosGlobales.add(numero);
-            numerosFinales.push(numero);
-        }
-    }
+    numerosFinales = mezclados.slice(0, cantidad);
 
-    numerosFinales.forEach((numeroFinal, index) => {
+    numerosFinales.forEach((num, index) => {
+
+        numerosUsados.add(num);
 
         let div = document.createElement("div");
         div.classList.add("numero");
@@ -124,177 +126,100 @@ function generarNumeros(cantidad) {
 
         contenedor.appendChild(div);
 
-        animarBoleta(div, numeroFinal, index);
-    });
-}
-
-/* ===================== */
-/* 🎯 MOSTRAR NÚMEROS */
-/* ===================== */
-
-function mostrarNumerosAnimados(lista) {
-    const contenedor = document.getElementById("listaNumeros");
-
-    contenedor.innerHTML = "";
-
-    lista.forEach((numero, index) => {
-        setTimeout(() => {
-            let div = document.createElement("div");
-            div.classList.add("numero");
-
-            div.textContent = numero.toString().padStart(3, '0');
-
-            contenedor.appendChild(div);
-        }, index * 150);
-    });
-}
-
-/* ===================== */
-/* 🎯 CERRAR RESULTADOS */
-/* ===================== */
-
-function cerrarResultados() {
-    document.getElementById("resultados").classList.add("hidden");
-}
-
-/* TOUCH BOTÓN CONTINUAR */
-
-const btnCerrar = document.querySelector('.btn-cerrar');
-
-if (btnCerrar) {
-    btnCerrar.addEventListener('touchstart', function () {
-        this.classList.add('touch-active');
+        animarBoleta(div, num, index);
     });
 
-    btnCerrar.addEventListener('touchend', function () {
-        this.classList.remove('touch-active');
-    });
+    guardarEstado();
 }
 
 /* ===================== */
-/* 🎰 ANIMACIÓN BOLETA */
+/* 🎯 OBTENER DISPONIBLES */
 /* ===================== */
 
-function animarBoleta(elemento, numeroFinal, index) {
+function obtenerDisponibles() {
+    const disponibles = [];
 
-    let duracion = 800 + (index * 150);
-    let intervaloTiempo = 50;
+    for (let i = 0; i < 1000; i++) {
+        const num = i.toString().padStart(3, "0");
 
-    let intervalo = setInterval(() => {
-        let n = Math.floor(Math.random() * 1000);
-        elemento.textContent = n.toString().padStart(3, '0');
-    }, intervaloTiempo);
+        if (!numerosUsados.has(num)) {
+            disponibles.push(num);
+        }
+    }
 
-    setTimeout(() => {
-        clearInterval(intervalo);
-
-        elemento.textContent = numeroFinal.toString().padStart(3, '0');
-
-        elemento.style.transform = "scale(1.2)";
-        setTimeout(() => {
-            elemento.style.transform = "scale(1)";
-        }, 150);
-
-    }, duracion);
+    return disponibles;
 }
 
 /* ===================== */
-/* 🎯 RENDER PAGINADO */
+/* 🎯 MEZCLAR ARRAY */
 /* ===================== */
 
-function renderPagina() {
+function mezclarArray(array) {
+    return array.sort(() => Math.random() - 0.5);
+}
+
+/* ===================== */
+/* 🎯 PANEL ALEATORIO (100) */
+/* ===================== */
+
+function generarPanelAleatorio() {
+
+    const disponibles = obtenerDisponibles();
+
+    if (disponibles.length === 0) {
+        alert("🔥 TODOS LOS NÚMEROS HAN SIDO TOMADOS");
+        return;
+    }
+
+    const mezclados = mezclarArray(disponibles);
+    const mostrar = mezclados.slice(0, 100);
+
+    renderizarPanel(mostrar);
+}
+
+/* ===================== */
+/* 🎯 RENDER PANEL */
+/* ===================== */
+
+function renderizarPanel(numeros) {
+
     const contenedor = document.getElementById("panelNumeros");
-    const titulo = document.getElementById("tituloSelector");
-
-    const btnAnterior = document.getElementById("btnAnterior");
-    const btnSiguiente = document.getElementById("btnSiguiente");
 
     contenedor.innerHTML = "";
+    numerosSeleccionados = [];
 
-    let inicio = paginaActual * 100;
-    let fin = inicio + 99;
-
-    if (fin > 999) fin = 999;
-
-   
-
-    // 🔢 GENERAR NÚMEROS
-    for (let i = inicio; i <= fin; i++) {
+    numeros.forEach(num => {
 
         let div = document.createElement("div");
         div.classList.add("numero");
+        div.textContent = num;
 
-        let numeroTexto = i.toString().padStart(3, '0');
-        div.textContent = numeroTexto;
-
-        // 🔒 bloqueados
-        if (numerosGlobales.has(i)) {
+        if (numerosUsados.has(num)) {
             div.classList.add("bloqueado");
         } else {
-            div.addEventListener("click", () => toggleSeleccion(div, i));
-        }
-
-        // ✅ seleccionados
-        if (seleccionados.has(i)) {
-            div.classList.add("seleccionado");
+            div.addEventListener("click", () => seleccionarNumero(div, num));
         }
 
         contenedor.appendChild(div);
-    }
-
-    // =====================
-    // 🎛️ CONTROL DE BOTONES
-    // =====================
-
-    // 🔹 PRIMERA PÁGINA (000–099)
-    if (paginaActual === 0) {
-        btnAnterior.style.display = "none";
-        btnSiguiente.style.display = "inline-block";
-    }
-
-    // 🔹 ÚLTIMA PÁGINA (900–999)
-    else if ((paginaActual + 1) * 100 >= 1000) {
-        btnAnterior.style.display = "inline-block";
-        btnSiguiente.style.display = "none";
-    }
-
-    // 🔹 PÁGINAS INTERMEDIAS
-    else {
-        btnAnterior.style.display = "inline-block";
-        btnSiguiente.style.display = "inline-block";
-    }
+    });
 }
 
 /* ===================== */
-/* 🎯 SELECCIÓN */
+/* 🎯 SELECCIONAR */
 /* ===================== */
 
-function toggleSeleccion(elemento, numero) {
+function seleccionarNumero(elemento, numero) {
 
-    if (seleccionados.has(numero)) {
-        seleccionados.delete(numero);
+    if (elemento.classList.contains("seleccionado")) {
         elemento.classList.remove("seleccionado");
+        numerosSeleccionados = numerosSeleccionados.filter(n => n !== numero);
     } else {
-        seleccionados.add(numero);
         elemento.classList.add("seleccionado");
+        numerosSeleccionados.push(numero);
     }
-}
 
-/* ===================== */
-/* 🎯 PAGINACIÓN */
-/* ===================== */
-
-function siguientePagina() {
-    if ((paginaActual + 1) * 100 < 1000) {
-        paginaActual++;
-        renderPagina();
-    }
-}
-
-function anteriorPagina() {
-    if (paginaActual > 0) {
-        paginaActual--;
-        renderPagina();
+    if (navigator.vibrate) {
+        navigator.vibrate(50);
     }
 }
 
@@ -304,23 +229,80 @@ function anteriorPagina() {
 
 function confirmarSeleccion() {
 
-    if (seleccionados.size === 0) {
+    if (numerosSeleccionados.length === 0) {
         alert("Selecciona al menos un número");
         return;
     }
 
-    let lista = Array.from(seleccionados);
+    numerosSeleccionados.forEach(num => {
+        numerosUsados.add(num);
+    });
 
-    lista.forEach(n => numerosGlobales.add(n));
+    guardarEstado();
+
+    mostrarNumerosAnimados(numerosSeleccionados);
 
     document.getElementById("selector").classList.add("hidden");
-
-    mostrarNumerosAnimados(lista);
     document.getElementById("resultados").classList.remove("hidden");
+}
+
+/* ===================== */
+/* 🎯 MOSTRAR RESULTADOS */
+/* ===================== */
+
+function mostrarNumerosAnimados(lista) {
+
+    const contenedor = document.getElementById("listaNumeros");
+    contenedor.innerHTML = "";
+
+    lista.forEach((numero, index) => {
+        setTimeout(() => {
+
+            let div = document.createElement("div");
+            div.classList.add("numero");
+
+            div.textContent = numero;
+
+            contenedor.appendChild(div);
+
+        }, index * 120);
+    });
+}
+
+/* ===================== */
+/* 🎯 CERRAR */
+/* ===================== */
+
+function cerrarResultados() {
+    document.getElementById("resultados").classList.add("hidden");
 }
 
 function cerrarSelector() {
     document.getElementById("selector").classList.add("hidden");
 }
 
+/* ===================== */
+/* 🎰 ANIMACIÓN BOLETA */
+/* ===================== */
 
+function animarBoleta(elemento, numeroFinal, index) {
+
+    let duracion = 800 + (index * 150);
+
+    let intervalo = setInterval(() => {
+        let n = Math.floor(Math.random() * 1000);
+        elemento.textContent = n.toString().padStart(3, '0');
+    }, 50);
+
+    setTimeout(() => {
+        clearInterval(intervalo);
+
+        elemento.textContent = numeroFinal;
+
+        elemento.style.transform = "scale(1.2)";
+        setTimeout(() => {
+            elemento.style.transform = "scale(1)";
+        }, 150);
+
+    }, duracion);
+}
