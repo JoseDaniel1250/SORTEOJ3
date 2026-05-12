@@ -1,3 +1,25 @@
+const SUPABASE_URL = "https://fyndoqudirtvgzsfxzwy.supabase.co/rest/v1/";
+
+const SUPABASE_KEY = "sb_publishable_48ViGSfpwKTrZpBKET4sKw_BRKZAxbZ";
+
+async function probarConexion() {
+
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/boletos?select=*`,
+        {
+            headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`
+            }
+        }
+    );
+
+    const data = await response.json();
+
+    console.log(data);
+}
+
+probarConexion();
 /* ===================== */
 /* 🎯 VARIABLES GLOBALES */
 /* ===================== */
