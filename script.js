@@ -1,6 +1,6 @@
 const SUPABASE_URL = "https://fyndoqudirtvgzsfxzwy.supabase.co";
 
-const SUPABASE_KEY = "TU_CLAVE_PUBLICABLE";
+const SUPABASE_KEY = "sb_publishable_48ViGSfpwKTrZpBKET4sKw_BRKZAxbZ";
 
 async function probarConexion() {
 
