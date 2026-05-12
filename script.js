@@ -21,6 +21,29 @@ async function probarConexion() {
     console.log(data);
 }
 
+/*RESERVA DE NUMEROS*/
+async function reservarNumeros(numeros) {
+
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/rpc/reservar_boletos`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`
+            },
+            body: JSON.stringify({
+                numeros: numeros
+            })
+        }
+    );
+
+    const data = await response.json();
+
+    console.log(data);
+}
+
 probarConexion();
 /* ===================== */
 /* 🎯 VARIABLES GLOBALES */
@@ -331,26 +354,6 @@ function animarBoleta(elemento, numeroFinal, index) {
     }, duracion);
 }
 
-async function reservarNumeros(numeros) {
 
-    const response = await fetch(
-        `${SUPABASE_URL}/rest/v1/rpc/reservar_boletos`,
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                apikey: SUPABASE_KEY,
-                Authorization: `Bearer ${SUPABASE_KEY}`
-            },
-            body: JSON.stringify({
-                numeros: numeros
-            })
-        }
-    );
-
-    const data = await response.json();
-
-    console.log(data);
-}
 
 reservarNumeros(["123", "456"]);
