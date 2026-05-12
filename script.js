@@ -356,4 +356,4 @@ function animarBoleta(elemento, numeroFinal, index) {
 
 
 
-reservarNumeros(["123", "456"]);
+
