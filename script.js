@@ -354,6 +354,29 @@ function animarBoleta(elemento, numeroFinal, index) {
     }, duracion);
 }
 
+/* ===================== */
+/*  AGREGAR BOLETOS */
+/* ===================== */
+
+async function obtenerBoletos() {
+
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/boletos?select=numero,estado`,
+        {
+            headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`
+            }
+        }
+    );
+
+    const data = await response.json();
+
+    console.log("BOLETOS:", data);
+
+    return data;
+}
+obtenerBoletos();
 
 
 
