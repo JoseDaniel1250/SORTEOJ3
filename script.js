@@ -298,12 +298,8 @@ function confirmarSeleccion() {
         alert("Selecciona al menos un número");
         return;
     }
-
-    numerosSeleccionados.forEach(num => {
-        numerosUsados.add(num);
-    });
-
-    guardarEstado();
+    
+    reservarNumeros(numerosSeleccionados);
 
     mostrarNumerosAnimados(numerosSeleccionados);
 
