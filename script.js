@@ -55,6 +55,7 @@ let numerosUsados = new Set(
 );
 
 let numerosSeleccionados = [];
+let boletosDB = [];
 
 /* ===================== */
 /* 🎯 EFECTO TOUCH */
@@ -86,9 +87,14 @@ botones.forEach(btn => {
 /* 🎯 FUNCIONES BOTONES */
 /* ===================== */
 
-function accionElegir() {
+async function accionElegir() {
+
+    await obtenerBoletos();
+
     generarPanelAleatorio();
-    document.getElementById("selector").classList.remove("hidden");
+
+    document.getElementById("selector")
+        .classList.remove("hidden");
 }
 
 function accionPesos() {
@@ -241,11 +247,23 @@ function renderizarPanel(numeros) {
         div.classList.add("numero");
         div.textContent = num;
 
-        if (numerosUsados.has(num)) {
-            div.classList.add("bloqueado");
-        } else {
-            div.addEventListener("click", () => seleccionarNumero(div, num));
-        }
+        const boletoDB = boletosDB.find(
+    b => b.numero === num
+);
+
+if (
+    boletoDB &&
+    boletoDB.estado !== "disponible"
+) {
+
+    div.classList.add("bloqueado");
+
+} else {
+
+    div.addEventListener("click", () =>
+        seleccionarNumero(div, num)
+    );
+}
 
         contenedor.appendChild(div);
     });
@@ -372,11 +390,11 @@ async function obtenerBoletos() {
 
     const data = await response.json();
 
-    console.log("BOLETOS:", data);
+    boletosDB = data;
 
-    return data;
+    console.log("BOLETOS DB:", boletosDB);
 }
 obtenerBoletos();
-
+reservarNumeros(["178", "521", "229", "244"]);
 
 
