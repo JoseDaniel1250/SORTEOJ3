@@ -395,6 +395,6 @@ async function obtenerBoletos() {
     console.log("BOLETOS DB:", boletosDB);
 }
 obtenerBoletos();
-reservarNumeros(["178", "521", "229", "244"]);
+
 
 
