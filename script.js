@@ -87,6 +87,8 @@ botones.forEach(btn => {
 /* 🎯 FUNCIONES BOTONES */
 /* ===================== */
 
+let intervaloActualizacion;
+
 async function accionElegir() {
 
     await obtenerBoletos();
@@ -95,6 +97,14 @@ async function accionElegir() {
 
     document.getElementById("selector")
         .classList.remove("hidden");
+
+    intervaloActualizacion = setInterval(async () => {
+
+        await obtenerBoletos();
+
+        generarPanelAleatorio();
+
+    }, 5000);
 }
 
 function accionPesos() {
@@ -339,7 +349,11 @@ function cerrarResultados() {
 }
 
 function cerrarSelector() {
-    document.getElementById("selector").classList.add("hidden");
+
+    clearInterval(intervaloActualizacion);
+
+    document.getElementById("selector")
+        .classList.add("hidden");
 }
 
 /* ===================== */
