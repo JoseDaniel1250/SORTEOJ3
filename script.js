@@ -48,6 +48,8 @@ async function obtenerSorteoActivo() {
         console.log("🎰 SORTEO ACTIVO:", sorteoActivo);
 
         mostrarDatosSorteo();
+        
+        await obtenerBoletos();
 
     } catch (error) {
 
