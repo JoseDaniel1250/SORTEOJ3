@@ -4,6 +4,167 @@ const SUPABASE_URL = "https://fyndoqudirtvgzsfxzwy.supabase.co";
 
 const SUPABASE_KEY = "sb_publishable_48ViGSfpwKTrZpBKET4sKw_BRKZAxbZ";
 
+
+/* =============================== */
+/* 🎰 OBTENER SORTEO ACTIVO */
+/* =============================== */
+
+let sorteoActivo = null;
+
+async function obtenerSorteoActivo() {
+
+    try {
+
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/sorteos?estado=eq.activo&select=id,nombre,estado,fecha_inicio,fecha_fin,premio,imagen,precio&limit=1`,
+            {
+                headers: {
+                    apikey: SUPABASE_KEY,
+                    Authorization: `Bearer ${SUPABASE_KEY}`
+                }
+            }
+        );
+
+        if (!response.ok) {
+
+            throw new Error(
+                `Error HTTP: ${response.status}`
+            );
+
+        }
+
+        const data = await response.json();
+
+        if (!data || data.length === 0) {
+
+            console.warn("⚠️ No existe un sorteo activo.");
+
+            return;
+
+        }
+
+        sorteoActivo = data[0];
+
+        console.log("🎰 SORTEO ACTIVO:", sorteoActivo);
+
+        mostrarDatosSorteo();
+
+    } catch (error) {
+
+        console.error(
+            "❌ Error obteniendo el sorteo activo:",
+            error
+        );
+
+    }
+
+}
+
+/* =============================== */
+/* 🎨 MOSTRAR DATOS DEL SORTEO */
+/* =============================== */
+
+function mostrarDatosSorteo() {
+
+    if (!sorteoActivo) return;
+
+    const nombre = document.getElementById("premioNombre");
+    const fecha = document.getElementById("premioFecha");
+    const precio = document.getElementById("premioPrecio");
+    const imagen = document.getElementById("premioImagen");
+
+
+    /* =============================== */
+    /* 🏆 PREMIO */
+    /* =============================== */
+
+    if (nombre && sorteoActivo.premio) {
+
+        nombre.textContent =
+            `🔥${sorteoActivo.premio}🔥`;
+
+    }
+
+
+    /* =============================== */
+    /* 📅 FECHA */
+    /* =============================== */
+
+    if (fecha && sorteoActivo.fecha_fin) {
+
+        fecha.textContent =
+            `⏳${formatearFecha(sorteoActivo.fecha_fin)}⌛`;
+
+    }
+
+
+    /* =============================== */
+    /* 💰 PRECIO */
+    /* =============================== */
+
+    if (precio && sorteoActivo.precio !== null) {
+
+        const valor = new Intl.NumberFormat("es-CO")
+            .format(sorteoActivo.precio);
+
+        precio.textContent =
+            `💸TAN SOLO $${valor} PARA GANAR💸`;
+
+    }
+
+
+    /* =============================== */
+    /* 🖼️ IMAGEN */
+    /* =============================== */
+
+    if (imagen && sorteoActivo.imagen) {
+
+        imagen.src = sorteoActivo.imagen;
+
+    }
+
+}
+
+/* =============================== */
+/* 📅 FORMATEAR FECHA */
+/* =============================== */
+
+function formatearFecha(fecha) {
+
+    const fechaObj = new Date(fecha);
+
+    const meses = [
+        "ENERO",
+        "FEBRERO",
+        "MARZO",
+        "ABRIL",
+        "MAYO",
+        "JUNIO",
+        "JULIO",
+        "AGOSTO",
+        "SEPTIEMBRE",
+        "OCTUBRE",
+        "NOVIEMBRE",
+        "DICIEMBRE"
+    ];
+
+    const dia = fechaObj
+        .getDate()
+        .toString()
+        .padStart(2, "0");
+
+    const mes = meses[
+        fechaObj.getMonth()
+    ];
+
+    const año = fechaObj.getFullYear();
+
+    return `${dia}/${mes}/${año}`;
+
+}
+
+obtenerSorteoActivo();
+
 async function probarConexion() {
 
     const response = await fetch(
