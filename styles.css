@@ -1,485 +1,494 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-    -webkit-tap-highlight-color: transparent;
+/* ==========================================================
+   CASINO LOTTERY FRONTEND CSS v2.0
+   Reorganizado y limpiado.
+   NOTA: Esta es una base reorganizada. Mantiene el diseño actual
+   eliminando duplicados de #panelNumeros .numero y agrupando secciones.
+   ========================================================== */
+
+/* =========================
+   RESET
+========================= */
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+    -webkit-tap-highlight-color:transparent;
 }
 
-html, body {
-    height: 100%;
-    overflow: hidden;
+body{
+    width:100%;
+    height:100%;
+    background:#1548b8;
+    overflow-y:auto;
 }
 
-body {
-    min-height: 100dvh;
-    background: linear-gradient(135deg, #0a2a66, #0f4bd9);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* =========================
+   APP
+========================= */
+.app{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
 }
 
-/* CONTENEDOR */
-.container {
-    text-align: center;
-    width: 100%;
-    max-width: 600px;
-    padding: 10px;
+/* =========================
+   LOGO
+========================= */
+.logo{
+    width:500px;
+    margin-top:10px;
+    margin-bottom:-60px;
+    position:relative;
+    z-index:100;
+    animation:float 3s ease-in-out infinite;
+    pointer-events:none;
 }
 
-/* LOGO */
-.logo {
-    width: 600px;
-    max-width: 80%;
-    animation: float 3s ease-in-out infinite;
-    position: relative;
-    z-index: 1;
-    pointer-events: none;
+.logo.oculto{
+    opacity:0;
+    transform:translateY(-30px);
+    transition:.3s;
 }
 
-/* BOTONES */
-.buttons {
-    margin-top: -60px;
-    display: flex;
-    justify-content: center;
-    gap: 25px;
-    position: relative;
-    z-index: 2;
+/* =========================
+   PREMIO
+========================= */
+.premio-container{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
 }
 
-.btn-img {
-    width: 140px;
-    cursor: pointer;
-    transition: transform 0.1s ease, filter 0.1s ease;
-    user-select: none;
-    -webkit-user-select: none;
+.premio-frame{
+    width:600px;
+    max-width:88vw;
+    height:420px;
+    border:8px solid #d6a21d;
+    border-radius:25px;
+    overflow:hidden;
+    background:#d8e610;
+    box-shadow:0 0 20px gold,0 0 40px rgba(255,215,0,.5);
+    flex-shrink:0;
 }
 
-/* ANIMACIÓN LOGO */
-@keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-    100% { transform: translateY(0px); }
+.premio-img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
 }
 
-/* HOVER SOLO EN PC */
-@media (hover: hover) {
-    .btn-img:hover {
-        transform: scale(1.1);
-        filter: drop-shadow(0 0 12px gold) brightness(1.2);
-    }
-}
+.premio-nombre{
 
-/* TOUCH / CLICK */
-.btn-img:active {
-    transform: scale(0.9);
-    filter: brightness(1.3) drop-shadow(0 0 10px gold);
-}
+    width:92%;
 
-/* EFECTO INSTANTÁNEO */
-.touch-active {
-    transform: scale(0.9);
-    filter: brightness(1.3) drop-shadow(0 0 10px gold);
-}
+    margin-top:10px;
 
-/* 📱 MOBILE */
-@media (max-width: 600px) {
+    padding:12px 20px;
 
-    .logo {
-        width: 95vw;
-        max-width: none;
-    }
+    background:linear-gradient(180deg,#1e5fcf,#0a2a66);
 
-    .buttons {
-        margin-top: -20vw;
-        gap: 6vw;
-    }
+    border:3px solid #d6a21d;
 
-    .btn-img {
-        width: 30vw;
-        max-width: none;
-    }
-}
+    border-radius:18px;
 
-/* 📱 móviles pequeños */
-@media (max-width: 400px) {
+    color:#ffd700;
 
-    .logo {
-        width: 100vw;
-    }
+    font-size:22px;
 
-    .buttons {
-        margin-top: -18vw;
-    }
+    font-weight:900;
 
-    .btn-img {
-        width: 32vw;
-    }
-}
+    text-transform:uppercase;
 
-/* 🍏 FIX iPhone */
-@supports (-webkit-touch-callout: none) {
-    body {
-        min-height: -webkit-fill-available;
-    }
-}
+    letter-spacing:2px;
 
-/* ===================== */
-/* 🎯 MODAL */
-/* ===================== */
+    text-align:center;
 
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 100;
-}
+    display:flex;
 
-.hidden {
-    display: none;
-}
+    justify-content:center;
 
-.modal-content {
-    background: linear-gradient(145deg, #0f4bd9, #0a2a66);
-    padding: 25px;
-    border-radius: 15px;
-    text-align: center;
-    box-shadow: 0 0 25px gold;
-    animation: zoomIn 0.25s ease;
-    width: 90%;
-    max-width: 320px;
-}
+    align-items:center;
 
-.modal-content h2 {
-    color: gold;
-    margin-bottom: 15px;
-}
-
-.modal-content input {
-    padding: 10px;
-    width: 80%;
-    border-radius: 8px;
-    border: none;
-    margin-bottom: 15px;
-    text-align: center;
-    font-size: 16px;
-}
-
-.modal-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-}
-
-.modal-buttons button {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 8px;
-    background: gold;
-    color: #0a2a66;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.modal-buttons button:hover {
-    transform: scale(1.05);
-}
-
-/* ANIMACIÓN */
-@keyframes zoomIn {
-    from {
-        transform: scale(0.7);
-        opacity: 0;
-    }
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-/* ===================== */
-/* 🎯 RESULTADOS */
-/* ===================== */
-
-.resultados {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-
-    height: 100dvh; /* ✅ altura real en móviles */
-    overflow-y: auto;
-
-    background: linear-gradient(180deg, #0a2a66, #000);
-    padding: 20px;
-    text-align: center;
-
-    box-shadow: 0 -5px 20px rgba(0,0,0,0.8);
-    animation: slideUp 0.4s ease;
-    z-index: 90;
-
-    -webkit-overflow-scrolling: touch; /* ✅ scroll suave iPhone */
-}
-
-.resultados h2 {
-    color: gold;
-    margin-bottom: 10px;
-}
-
-.numeros {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-}
-
-/* 🎰 CADA NÚMERO */
-.numero {
-    background: gold;
-    color: #0a2a66;
-    font-weight: bold;
-    padding: 10px 15px;
-    border-radius: 10px;
-    font-size: 18px;
-    animation: pop 0.3s ease;
-}
-
-/* ANIMACIONES */
-@keyframes slideUp {
-    from {
-        transform: translateY(100%);
-    }
-    to {
-        transform: translateY(0);
-    }
-}
-
-@keyframes pop {
-    from {
-        transform: scale(0.5);
-        opacity: 0;
-    }
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-.resultados .btn-cerrar {
-    margin-top: 15px;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 10px;
-
-    background: linear-gradient(145deg, gold, #ffd700) !important;
-    color: #0a2a66 !important;
-
-    font-weight: bold;
-    font-size: 16px;
-
-    cursor: pointer;
-
-    box-shadow: 0 0 10px gold, 0 0 20px rgba(255, 215, 0, 0.5);
-
-    transition: transform 0.1s ease, filter 0.1s ease;
-}
-
-/* HOVER PC */
-@media (hover: hover) {
-    .btn-cerrar:hover {
-        transform: scale(1.08);
-        filter: brightness(1.2);
-        box-shadow: 0 0 15px gold, 0 0 30px rgba(255, 215, 0, 0.8);
-    }
-}
-
-
-
-/* CLICK / TOUCH */
-.btn-cerrar:active {
-    transform: scale(0.92);
-    filter: brightness(1.3);
-}
-
-@media (hover: hover) {
-    .resultados .btn-cerrar:hover {
-        transform: scale(1.08);
-        filter: brightness(1.2);
-        box-shadow: 0 0 15px gold, 0 0 30px rgba(255, 215, 0, 0.8);
-    }
-}
-
-.resultados .btn-cerrar:active {
-    transform: scale(0.92);
-    filter: brightness(1.3);
-}
-
-/* GRID MÁS ORGANIZADO */
-.numeros {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-    gap: 12px;
-    max-width: 400px;
-    margin: 0 auto;
-}
-
-/* 🎟️ BOLETA ESTILO CASINO */
-.numero {
-    background: linear-gradient(145deg, gold, #ffd700);
-    color: #0a2a66;
-    font-weight: bold;
-    font-size: 20px;
-
-    padding: 15px 10px;
-    border-radius: 12px;
+    min-height:70px;
 
     box-shadow:
-        0 0 10px rgba(255, 215, 0, 0.8),
-        inset 0 0 5px rgba(255,255,255,0.5);
+        0 0 12px rgba(255,215,0,.8),
+        inset 0 2px 3px rgba(255,255,255,.25);
 
-    border: 2px solid rgba(255,255,255,0.3);
+    text-shadow:
+        0 2px 0 #8a5d00,
+        0 0 10px rgba(255,215,0,.8);
 
-    letter-spacing: 2px;
-
-    animation: pop 0.3s ease;
-
-    position: relative;
+    -webkit-text-stroke:1px #8a5d00;
 }
 
-/* EFECTO BRILLO */
-.numero::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -50%;
-    width: 50%;
-    height: 100%;
-    background: rgba(255,255,255,0.4);
-    transform: skewX(-20deg);
-    animation: shine 2s infinite;
+/* =========================
+   MENU
+========================= */
+.menu-principal{
+
+    margin-top:-40px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:5px;
+
 }
 
-@keyframes shine {
-    0% { left: -50%; }
-    100% { left: 150%; }
+.btn-elegir,.btn-aleatorio{width:250px;}
+.btn-pesos{width:190px;}
+
+.btn-elegir,.btn-pesos,.btn-aleatorio{
+    cursor:pointer;
+    transition:.15s;
 }
 
-/* 🎰 RULETA MEJORADA */
+.btn-elegir:hover,.btn-pesos:hover,.btn-aleatorio:hover{transform:scale(1.05);}
+.btn-elegir:active,.btn-pesos:active,.btn-aleatorio:active{transform:scale(.95);}
 
+.btn-continuar{
 
-/* 🎟️ TARJETA */
-.ruleta-card {
-    background: linear-gradient(145deg, #0f4bd9, #0a2a66);
-    padding: 30px 40px;
-    border-radius: 20px;
+    width:190px;
+
+    margin-top:45px;
+
+    cursor:pointer;
+
+    transition:.15s;
+
+}
+
+.btn-continuar:hover{
+
+    transform:scale(1.05);
+
+}
+
+.btn-continuar:active{
+
+    transform:scale(.95);
+
+}
+/* =========================
+   MODAL
+========================= */
+.modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.7);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:100;
+}
+
+.hidden{display:none;}
+
+.modal-content{
+    width:90%;
+    max-width:320px;
+    background:linear-gradient(145deg,#0f4bd9,#0a2a66);
+    padding:25px;
+    border-radius:15px;
+    text-align:center;
+    box-shadow:0 0 25px gold;
+}
+
+.modal-content h2{color:gold;margin-bottom:15px;}
+.modal-content input{
+    width:80%;
+    padding:10px;
+    border:none;
+    border-radius:8px;
+    text-align:center;
+    margin-bottom:15px;
+}
+
+.modal-buttons{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+}
+
+.modal-buttons button{
+    padding:10px 15px;
+    border:none;
+    border-radius:8px;
+    background:gold;
+    color:#0a2a66;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+/* =========================
+   SELECTOR / RESULTADOS
+========================= */
+.resultados{
+    position:fixed;
+    inset:0;
+    background:linear-gradient(180deg,#0a2a66,#000);
+    padding:20px;
+    text-align:center;
+    overflow-y:auto;
+    z-index:90;
+}
+
+.resultados h2{
+    color:gold;
+    margin-bottom:15px;
+}
+
+.selector:not(.hidden){display:flex;}
+.selector{
+    position:fixed;
+    inset:0;
+    background:linear-gradient(180deg,#0a2a66,#000);
+    z-index:1000;
+    flex-direction:column;
+}
+
+.selector-header{
+    padding:20px 15px 10px;
+    text-align:center;
+}
+
+.selector-header h2{
+    color:gold;
+    font-size:28px;
+    margin-bottom:10px;
+}
+
+.contador{
+    color:white;
+    font-size:18px;
+    margin-bottom:15px;
+}
+
+#contadorSeleccionados{color:gold;font-weight:bold;}
+
+#buscadorNumero{
+    width:100%;
+    max-width:300px;
+    height:45px;
+    border:none;
+    border-radius:15px;
+    text-align:center;
+    font-size:18px;
+}
+
+/* GRID */
+#panelNumeros{
+    flex:1;
+    overflow-y:auto;
+    padding:15px;
+    display:grid;
+    grid-template-columns:repeat(12,1fr);
+    gap:5px;
+    align-content:start;
+}
+
+#panelNumeros .numero{
+    height:34px;
+    background:linear-gradient(145deg,gold,#ffd700);
+    color:#0a2a66;
+    font-size:16px;
+    font-weight:900;
+    border-radius:8px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    cursor:pointer;
+    letter-spacing:.5px;
+    text-shadow:0 1px 0 rgba(255,255,255,.45);
+    box-shadow:0 0 5px rgba(255,215,0,.7);
+    transition:.15s;
+}
+
+.numero.bloqueado{
+    background:#555!important;
+    color:#999!important;
+    opacity:.5;
+}
+
+.numero.seleccionado{
+    background:#00d8b5!important;
+    color:#002b2b!important;
+}
+
+.selector-botones{
+    padding:15px;
+    display:flex;
+    justify-content:center;
+    gap:20px;
+}
+
+.btn-cancelar,.btn-confirmar,.btn-cerrar,.btn-cancelar-resultados{
+    padding:12px 20px;
+    border:none;
+    border-radius:12px;
+    background:linear-gradient(180deg,#1e5fcf,#0a2a66);
+    border:3px solid gold;
+    color:gold;
+    font-weight:bold;
+    cursor:pointer;
+    box-shadow:0 0 12px rgba(255,215,0,.7);
+}
+/* Botón Continuar */
+.btn-continuar{
+
+    margin-top:15px;
+
+}
+/* ===========================
+   RESULTADOS PREMIUM
+=========================== */
+
+#listaNumeros{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    justify-content:center;
+
+    gap:18px;
+
+    margin-top:25px;
+
+}
+
+.resultado{
+
+    width:120px;
+
+    height:70px;
+
+    background:linear-gradient(145deg,#ffd700,#f7b500);
+
+    color:#0a2a66;
+
+    border-radius:16px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:28px;
+
+    font-weight:900;
+
+    letter-spacing:2px;
 
     box-shadow:
-        0 0 25px gold,
-        inset 0 0 10px rgba(255,255,255,0.2);
+        0 0 18px rgba(255,215,0,.9);
 
-    text-align: center;
+    transition:.25s;
 
-    animation: zoomIn 0.3s ease;
 }
 
-/* 🎯 NÚMERO */
-#ruletaNumero {
-    font-size: 70px;
-    font-weight: bold;
-    color: gold;
+.resultado.revelado{
 
-    letter-spacing: 5px;
+    transform:scale(1.12);
 
-    text-shadow:
-        0 0 10px gold,
-        0 0 20px gold,
-        0 0 40px gold;
+    animation:brillo .4s ease;
 
-    margin-bottom: 10px;
 }
 
-/* TEXTO */
-.ruleta-texto {
-    color: white;
-    font-size: 16px;
-    opacity: 0.8;
-}
+@keyframes brillo{
 
-/* ANIMACIÓN */
-@keyframes zoomIn {
-    from {
-        transform: scale(0.7);
-        opacity: 0;
+    0%{
+
+        transform:scale(.6);
+
+        opacity:.4;
+
     }
-    to {
-        transform: scale(1);
-        opacity: 1;
+
+    60%{
+
+        transform:scale(1.18);
+
     }
-}
 
-#ruletaNumero {
-    font-size: 80px;
-    font-weight: bold;
-    color: gold;
+    100%{
 
-    text-shadow:
-        0 0 10px gold,
-        0 0 20px gold,
-        0 0 40px gold;
+        transform:scale(1.12);
 
-    letter-spacing: 5px;
-}
+        opacity:1;
 
-/* 🔒 NÚMEROS BLOQUEADOS */
-.numero.bloqueado {
-    background: #555 !important;
-    color: #999 !important;
-    box-shadow: none;
-    opacity: 0.5;
-}
-
-/* ✅ SELECCIONADOS */
-.numero.seleccionado {
-    background: linear-gradient(145deg, #00ffcc, #00c9a7) !important;
-    color: #002b2b !important;
-}
-
-/* NAVEGACIÓN */
-.selector-nav {
-    margin-top: 15px;
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-}
-
-.selector-nav button {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 8px;
-    background: gold;
-    color: #0a2a66;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.numeros {
-    animation: fadeGrid 0.3s ease;
-}
-
-@keyframes fadeGrid {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+
+}
+.acciones-resultados{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:18px;
+
+    margin-top:30px;
+
+}
+
+/* =========================
+   ANIMACIONES
+========================= */
+@keyframes float{
+0%{transform:translateY(0);}
+50%{transform:translateY(-8px);}
+100%{transform:translateY(0);}
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media(max-width:768px){
+.logo{width:260px;}
+.premio-frame{width:92vw;height:320px;}
+.menu-principal{gap:10px;}
+.btn-elegir,.btn-aleatorio{width:31vw;}
+.btn-pesos{width:24vw;}
+#panelNumeros{
+grid-template-columns:repeat(8,1fr);
+gap:4px;
+}
+#panelNumeros .numero{
+height:30px;
+font-size:13px;
+font-weight:700;
+}
+.premio-nombre{
+
+    width:100%;   /*Aqui se define el tamño del nombre del premio */
+
+    font-size:18px;
+
+    letter-spacing:1px;
+
+    min-height:62px;
+
+    padding:10px 14px;
+}
+
+.premio-frame{
+
+    width:92vw;
+
+    height:200px;
+
+}
 }

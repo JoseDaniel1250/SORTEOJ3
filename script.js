@@ -57,6 +57,16 @@ let numerosUsados = new Set(
 let numerosSeleccionados = [];
 let boletosDB = [];
 
+/* NUEVO SELECTOR */
+
+let numerosRenderizados = [];
+
+let siguienteNumero = 0;
+
+const TOTAL_NUMEROS = 10000;
+
+const BLOQUE = 1000;
+
 /* ===================== */
 /* 🎯 EFECTO TOUCH */
 /* ===================== */
@@ -93,26 +103,50 @@ async function accionElegir() {
 
     await obtenerBoletos();
 
-    generarPanelAleatorio();
+generarPanelInicial();
 
+    // Ocultar logo
+    document.querySelector(".logo")
+        .classList.add("oculto");
+
+    // Mostrar selector
     document.getElementById("selector")
         .classList.remove("hidden");
 
-    intervaloActualizacion = setInterval(async () => {
+   intervaloActualizacion = setInterval(async () => {
 
-        await obtenerBoletos();
+    await obtenerBoletos();
 
-        generarPanelAleatorio();
+}, 5000);
 
-    }, 5000);
-}
-
-function accionPesos() {
-    alert("Función PESOS próximamente");
 }
 
 function accionAleatorio() {
     abrirModal();
+}
+
+function cancelarResultados(){
+
+    document.getElementById("resultados")
+        .classList.add("hidden");
+
+    document.getElementById("selector")
+        .classList.add("hidden");
+
+    document.getElementById("modal")
+        .classList.add("hidden");
+
+    document.querySelector(".logo")
+        .classList.remove("oculto");
+
+    clearInterval(intervaloActualizacion);
+
+}
+
+function accionPesos(){
+
+    alert("Próximamente continuaremos con la compra.");
+
 }
 
 /* ===================== */
@@ -120,11 +154,25 @@ function accionAleatorio() {
 /* ===================== */
 
 function abrirModal() {
-    document.getElementById("modal").classList.remove("hidden");
+
+    // Ocultar logo
+    document.querySelector(".logo")
+        .classList.add("oculto");
+
+    document.getElementById("modal")
+        .classList.remove("hidden");
+
 }
 
 function cerrarModal() {
-    document.getElementById("modal").classList.add("hidden");
+
+    document.getElementById("modal")
+        .classList.add("hidden");
+
+    // Mostrar logo nuevamente
+    document.querySelector(".logo")
+        .classList.remove("oculto");
+
 }
 
 /* ===================== */
@@ -155,44 +203,47 @@ function guardarEstado() {
 /* 🎯 GENERAR NÚMEROS ALEATORIOS */
 /* ===================== */
 
-function generarNumeros(cantidad) {
+function generarNumeros(cantidad){
 
-    const contenedor = document.getElementById("listaNumeros");
     const resultados = document.getElementById("resultados");
 
-    contenedor.innerHTML = "";
+    // Ocultar logo
+    document.querySelector(".logo")
+        .classList.add("oculto");
+
     resultados.classList.remove("hidden");
 
-    let numerosFinales = [];
     let disponibles = obtenerDisponibles();
 
-    if (disponibles.length === 0) {
+    if(disponibles.length===0){
+
         alert("🔥 TODOS LOS NÚMEROS HAN SIDO TOMADOS");
+
         return;
+
     }
 
-    if (cantidad > disponibles.length) {
-        cantidad = disponibles.length;
+    if(cantidad>disponibles.length){
+
+        cantidad=disponibles.length;
+
     }
 
-    let mezclados = mezclarArray(disponibles);
+    const mezclados=mezclarArray(disponibles);
 
-    numerosFinales = mezclados.slice(0, cantidad);
+    const numerosFinales=mezclados.slice(0,cantidad);
 
-    numerosFinales.forEach((num, index) => {
+    numerosFinales.forEach(num=>{
 
         numerosUsados.add(num);
 
-        let div = document.createElement("div");
-        div.classList.add("numero");
-        div.textContent = "000";
-
-        contenedor.appendChild(div);
-
-        animarBoleta(div, num, index);
     });
 
     guardarEstado();
+
+    // Mostrar usando el nuevo efecto premium
+    mostrarNumerosAnimados(numerosFinales);
+
 }
 
 /* ===================== */
@@ -202,8 +253,8 @@ function generarNumeros(cantidad) {
 function obtenerDisponibles() {
     const disponibles = [];
 
-    for (let i = 0; i < 1000; i++) {
-        const num = i.toString().padStart(3, "0");
+    for (let i = 0; i < 10000; i++) {
+        const num = i.toString().padStart(4, "0");
 
         if (!numerosUsados.has(num)) {
             disponibles.push(num);
@@ -221,81 +272,207 @@ function mezclarArray(array) {
     return array.sort(() => Math.random() - 0.5);
 }
 
-/* ===================== */
-/* 🎯 PANEL ALEATORIO (100) */
-/* ===================== */
+function generarPanelInicial(){
 
-function generarPanelAleatorio() {
+    const panel = document.getElementById("panelNumeros");
 
-    const disponibles = obtenerDisponibles();
+    panel.innerHTML = "";
 
-    if (disponibles.length === 0) {
-        alert("🔥 TODOS LOS NÚMEROS HAN SIDO TOMADOS");
-        return;
-    }
-
-    const mezclados = mezclarArray(disponibles);
-    const mostrar = mezclados.slice(0, 100);
-
-    renderizarPanel(mostrar);
-}
-
-/* ===================== */
-/* 🎯 RENDER PANEL */
-/* ===================== */
-
-function renderizarPanel(numeros) {
-
-    const contenedor = document.getElementById("panelNumeros");
-
-    contenedor.innerHTML = "";
     numerosSeleccionados = [];
 
-    numeros.forEach(num => {
+    siguienteNumero = 0;
 
-        let div = document.createElement("div");
-        div.classList.add("numero");
-        div.textContent = num;
+    cargarSiguienteBloque();
+    activarScrollInfinito();
 
-        const boletoDB = boletosDB.find(
-    b => b.numero === num
-);
+}
 
-if (
-    boletoDB &&
-    boletoDB.estado !== "disponible"
-) {
+function cargarSiguienteBloque(){
 
-    div.classList.add("bloqueado");
+    const panel = document.getElementById("panelNumeros");
 
-} else {
-
-    div.addEventListener("click", () =>
-        seleccionarNumero(div, num)
+    const limite = Math.min(
+        siguienteNumero + BLOQUE,
+        TOTAL_NUMEROS
     );
+
+    for(let i = siguienteNumero; i < limite; i++){
+
+        const numero = i.toString().padStart(4,"0");
+
+        const div = document.createElement("div");
+
+div.className = "numero";
+
+div.textContent = numero;
+
+// NUEVO
+div.id = "n-" + numero;
+
+        // Buscar estado en la BD
+        const boleto = boletosDB.find(
+            b => b.numero === numero
+        );
+
+        if(boleto && boleto.estado !== "disponible"){
+
+            div.classList.add("bloqueado");
+
+        }else{
+
+            div.onclick = () => seleccionarNumero(div, numero);
+
+        }
+
+        panel.appendChild(div);
+
+    }
+
+    siguienteNumero = limite;
+
+}
+async function cargarHastaBloque(bloqueObjetivo){
+
+    while(
+        siguienteNumero < (bloqueObjetivo + 1) * BLOQUE &&
+        siguienteNumero < TOTAL_NUMEROS
+    ){
+
+        cargarSiguienteBloque();
+
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+    }
+
+}
+/* ==========================================
+   BUSCADOR INTELIGENTE
+========================================== */
+
+const buscador = document.getElementById("buscadorNumero");
+
+buscador.addEventListener("input", async () => {
+
+    const valor = buscador.value.trim();
+
+    if (valor.length !== 4) return;
+
+    const numero = parseInt(valor);
+
+    if (isNaN(numero)) return;
+
+    const bloque = Math.floor(numero / BLOQUE);
+
+    await cargarHastaBloque(bloque);
+
+    const objetivo = document.getElementById("n-" + valor);
+
+    if (!objetivo) return;
+
+    // Scroll hasta el número
+    objetivo.scrollIntoView({
+
+        behavior: "smooth",
+
+        block: "center"
+
+    });
+
+    // Si ya estaba bloqueado no hacer nada
+    if (objetivo.classList.contains("bloqueado")) return;
+
+    // Si no estaba seleccionado lo seleccionamos automáticamente
+    if (!objetivo.classList.contains("seleccionado")) {
+
+        objetivo.classList.add("seleccionado");
+
+        numerosSeleccionados.push(valor);
+
+        // Actualizar contador
+        const contador = document.getElementById("contadorSeleccionados");
+
+        if (contador) {
+
+            contador.textContent = numerosSeleccionados.length;
+
+        }
+
+        // Vibración en móviles
+        if (navigator.vibrate) {
+
+            navigator.vibrate(40);
+
+        }
+
+    }
+
+});
+
+function activarScrollInfinito(){
+
+    const panel=document.getElementById("panelNumeros");
+
+    panel.onscroll=()=>{
+
+        const cercaDelFinal=
+
+            panel.scrollTop+
+            panel.clientHeight>=
+            panel.scrollHeight-300;
+
+        if(cercaDelFinal){
+
+            if(siguienteNumero<TOTAL_NUMEROS){
+
+                cargarSiguienteBloque();
+
+            }
+
+        }
+
+    };
+
 }
 
-        contenedor.appendChild(div);
-    });
-}
 
 /* ===================== */
 /* 🎯 SELECCIONAR */
 /* ===================== */
 
-function seleccionarNumero(elemento, numero) {
+function seleccionarNumero(elemento, numero){
 
-    if (elemento.classList.contains("seleccionado")) {
+    if(elemento.classList.contains("bloqueado")) return;
+
+    if(elemento.classList.contains("seleccionado")){
+
         elemento.classList.remove("seleccionado");
-        numerosSeleccionados = numerosSeleccionados.filter(n => n !== numero);
-    } else {
+
+        numerosSeleccionados =
+            numerosSeleccionados.filter(n => n !== numero);
+
+    }else{
+
         elemento.classList.add("seleccionado");
+
         numerosSeleccionados.push(numero);
+
     }
 
-    if (navigator.vibrate) {
-        navigator.vibrate(50);
+    // Actualizar contador
+    const contador = document.getElementById("contadorSeleccionados");
+
+    if(contador){
+
+        contador.textContent = numerosSeleccionados.length;
+
     }
+
+    if(navigator.vibrate){
+
+        navigator.vibrate(40);
+
+    }
+
 }
 
 /* ===================== */
@@ -321,32 +498,51 @@ function confirmarSeleccion() {
 /* 🎯 MOSTRAR RESULTADOS */
 /* ===================== */
 
-function mostrarNumerosAnimados(lista) {
+function mostrarNumerosAnimados(lista){
 
     const contenedor = document.getElementById("listaNumeros");
+
     contenedor.innerHTML = "";
 
-    lista.forEach((numero, index) => {
-        setTimeout(() => {
+    lista.forEach((numero,index)=>{
 
-            let div = document.createElement("div");
-            div.classList.add("numero");
+        const ficha=document.createElement("div");
 
-            div.textContent = numero;
+        ficha.className="numero resultado";
 
-            contenedor.appendChild(div);
+        ficha.textContent="0000";
 
-        }, index * 120);
+        contenedor.appendChild(ficha);
+
+        let vueltas=0;
+
+        const efecto=setInterval(()=>{
+
+            ficha.textContent=Math.floor(Math.random()*10000)
+                .toString()
+                .padStart(4,"0");
+
+            vueltas++;
+
+            if(vueltas>18){
+
+                clearInterval(efecto);
+
+                ficha.textContent=numero;
+
+                ficha.classList.add("revelado");
+
+            }
+
+        },45);
+
     });
+
 }
 
 /* ===================== */
 /* 🎯 CERRAR */
 /* ===================== */
-
-function cerrarResultados() {
-    document.getElementById("resultados").classList.add("hidden");
-}
 
 function cerrarSelector() {
 
@@ -354,6 +550,11 @@ function cerrarSelector() {
 
     document.getElementById("selector")
         .classList.add("hidden");
+
+    // Volver a mostrar el logo
+    document.querySelector(".logo")
+        .classList.remove("oculto");
+
 }
 
 /* ===================== */
@@ -366,7 +567,7 @@ function animarBoleta(elemento, numeroFinal, index) {
 
     let intervalo = setInterval(() => {
         let n = Math.floor(Math.random() * 1000);
-        elemento.textContent = n.toString().padStart(3, '0');
+        elemento.textContent = n.toString().padStart(4, '0');
     }, 50);
 
     setTimeout(() => {
@@ -405,6 +606,8 @@ async function obtenerBoletos() {
     console.log("BOLETOS DB:", boletosDB);
 }
 obtenerBoletos();
+
+
 
 
 
