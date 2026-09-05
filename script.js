@@ -750,23 +750,56 @@ function animarBoleta(elemento, numeroFinal, index) {
 
 async function obtenerBoletos() {
 
-    const response = await fetch(
-        `${SUPABASE_URL}/rest/v1/boletos?select=numero,estado`,
-        {
-            headers: {
-                apikey: SUPABASE_KEY,
-                Authorization: `Bearer ${SUPABASE_KEY}`
+    if (!sorteoActivo) {
+
+        console.warn(
+            "⚠️ No se pueden obtener boletos porque no hay sorteo activo."
+        );
+
+        return;
+
+    }
+
+    try {
+
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/boletos?sorteo_id=eq.${sorteoActivo.id}&select=numero,estado`,
+            {
+                headers: {
+                    apikey: SUPABASE_KEY,
+                    Authorization: `Bearer ${SUPABASE_KEY}`
+                }
             }
+        );
+
+        if (!response.ok) {
+
+            throw new Error(
+                `Error HTTP: ${response.status}`
+            );
+
         }
-    );
 
-    const data = await response.json();
+        const data = await response.json();
 
-    boletosDB = data;
+        boletosDB = data;
 
-    console.log("BOLETOS DB:", boletosDB);
+        console.log(
+            `🎟️ BOLETOS DEL SORTEO ${sorteoActivo.id}:`,
+            boletosDB
+        );
+
+    } catch (error) {
+
+        console.error(
+            "❌ Error obteniendo boletos:",
+            error
+        );
+
+    }
+
 }
-obtenerBoletos();
+
 
 
 
