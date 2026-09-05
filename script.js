@@ -260,9 +260,6 @@ probarConexion();
 /* ===================== */
 
 // 🔒 Persistencia real (simulada)
-let numerosUsados = new Set(
-    JSON.parse(localStorage.getItem("numerosUsados")) || []
-);
 
 let numerosSeleccionados = [];
 let boletosDB = [];
