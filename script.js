@@ -48,7 +48,7 @@ async function obtenerSorteoActivo() {
         console.log("🎰 SORTEO ACTIVO:", sorteoActivo);
 
         mostrarDatosSorteo();
-        
+
         await obtenerBoletos();
 
     } catch (error) {
@@ -187,24 +187,71 @@ async function probarConexion() {
 /*RESERVA DE NUMEROS*/
 async function reservarNumeros(numeros) {
 
-    const response = await fetch(
-        `${SUPABASE_URL}/rest/v1/rpc/reservar_boletos`,
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                apikey: SUPABASE_KEY,
-                Authorization: `Bearer ${SUPABASE_KEY}`
-            },
-            body: JSON.stringify({
-                numeros: numeros
-            })
+    if (!sorteoActivo) {
+
+        console.error(
+            "❌ No existe un sorteo activo."
+        );
+
+        return null;
+
+    }
+
+    try {
+
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/rpc/reservar_boletos`,
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    apikey: SUPABASE_KEY,
+                    Authorization: `Bearer ${SUPABASE_KEY}`
+                },
+
+                body: JSON.stringify({
+
+                    p_sorteo_id: sorteoActivo.id,
+
+                    p_numeros: numeros
+
+                })
+
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+
+            console.error(
+                "❌ Error en la reserva:",
+                data
+            );
+
+            return null;
+
         }
-    );
 
-    const data = await response.json();
+        console.log(
+            "🎟️ RESULTADO RESERVA:",
+            data
+        );
 
-    console.log(data);
+        return data;
+
+    } catch (error) {
+
+        console.error(
+            "❌ Error conectando con la reserva:",
+            error
+        );
+
+        return null;
+
+    }
+
 }
 
 probarConexion();
@@ -642,19 +689,97 @@ function seleccionarNumero(elemento, numero){
 /* 🎯 CONFIRMAR SELECCIÓN */
 /* ===================== */
 
-function confirmarSeleccion() {
+async function confirmarSeleccion() {
 
     if (numerosSeleccionados.length === 0) {
+
         alert("Selecciona al menos un número");
+
         return;
+
     }
-    
-    reservarNumeros(numerosSeleccionados);
 
-    mostrarNumerosAnimados(numerosSeleccionados);
+    const resultado =
+        await reservarNumeros(numerosSeleccionados);
 
-    document.getElementById("selector").classList.add("hidden");
-    document.getElementById("resultados").classList.remove("hidden");
+
+    if (!resultado) {
+
+        alert(
+            "❌ No fue posible realizar la reserva."
+        );
+
+        return;
+
+    }
+
+
+    console.log(
+        "🎟️ Números reservados:",
+        resultado.numeros_reservados
+    );
+
+
+    console.log(
+        "⚠️ Números no reservados:",
+        resultado.no_reservados
+    );
+
+
+    /* =====================================
+       MOSTRAR SOLO LOS RESERVADOS
+       ===================================== */
+
+    const reservados =
+        resultado.numeros_reservados || [];
+
+
+    if (reservados.length === 0) {
+
+        alert(
+            "⚠️ Ninguno de los números seleccionados está disponible."
+        );
+
+        return;
+
+    }
+
+
+    /* =====================================
+       AVISAR SI ALGUNO FUE TOMADO
+       ===================================== */
+
+    const noReservados =
+        resultado.no_reservados || [];
+
+
+    if (noReservados.length > 0) {
+
+        alert(
+            "⚠️ Algunos números ya fueron tomados:\n\n" +
+            noReservados.join(", ") +
+            "\n\nLos demás fueron reservados durante 10 minutos."
+        );
+
+    }
+
+
+    /* =====================================
+       MOSTRAR RESULTADOS
+       ===================================== */
+
+    mostrarNumerosAnimados(reservados);
+
+
+    document
+        .getElementById("selector")
+        .classList.add("hidden");
+
+
+    document
+        .getElementById("resultados")
+        .classList.remove("hidden");
+
 }
 
 /* ===================== */
