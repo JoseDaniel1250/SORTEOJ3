@@ -889,31 +889,61 @@ async function obtenerBoletos() {
 
     try {
 
-        const response = await fetch(
-            `${SUPABASE_URL}/rest/v1/boletos?sorteo_id=eq.${sorteoActivo.id}&select=numero,estado`,
-            {
-                headers: {
-                    apikey: SUPABASE_KEY,
-                    Authorization: `Bearer ${SUPABASE_KEY}`
+        const todosLosBoletos = [];
+
+        const TAMANO_BLOQUE = 1000;
+
+        for (
+            let inicio = 0;
+            inicio < TOTAL_NUMEROS;
+            inicio += TAMANO_BLOQUE
+        ) {
+
+            const response = await fetch(
+                `${SUPABASE_URL}/rest/v1/boletos?sorteo_id=eq.${sorteoActivo.id}&select=numero,estado&order=numero&limit=${TAMANO_BLOQUE}&offset=${inicio}`,
+                {
+                    headers: {
+                        apikey: SUPABASE_KEY,
+                        Authorization: `Bearer ${SUPABASE_KEY}`
+                    }
                 }
-            }
-        );
-
-        if (!response.ok) {
-
-            throw new Error(
-                `Error HTTP: ${response.status}`
             );
+
+            if (!response.ok) {
+
+                throw new Error(
+                    `Error HTTP: ${response.status}`
+                );
+
+            }
+
+            const data = await response.json();
+
+            todosLosBoletos.push(...data);
+
+            console.log(
+                `📦 Bloque ${inicio} - ${inicio + data.length - 1}:`,
+                data.length
+            );
+
+            if (data.length < TAMANO_BLOQUE) {
+
+                break;
+
+            }
 
         }
 
-        const data = await response.json();
-
-        boletosDB = data;
+        boletosDB = todosLosBoletos;
 
         console.log(
             `🎟️ BOLETOS DEL SORTEO ${sorteoActivo.id}:`,
             boletosDB
+        );
+
+        console.log(
+            "📊 TOTAL BOLETOS CARGADOS:",
+            boletosDB.length
         );
 
     } catch (error) {
