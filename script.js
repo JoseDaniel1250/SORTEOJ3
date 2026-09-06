@@ -269,9 +269,7 @@ probarConexion();
 
 let numerosSeleccionados = [];
 let boletosDB = [];
-
-/* NUEVO SELECTOR */
-
+let boletosPorNumero = new Map();
 let numerosRenderizados = [];
 let siguienteNumero = 0;
 
