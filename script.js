@@ -488,9 +488,7 @@ function mezclarArray(array) {
     return array.sort(() => Math.random() - 0.5);
 }
 
-function generarPanelInicial(){
-
-    const boleto = boletosPorNumero.get(numero);
+function generarPanelInicial() {
 
     panel.innerHTML = "";
 
@@ -499,6 +497,7 @@ function generarPanelInicial(){
     siguienteNumero = 0;
 
     cargarSiguienteBloque();
+
     activarScrollInfinito();
 
 }
