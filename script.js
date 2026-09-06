@@ -413,9 +413,6 @@ async function generarNumeros(cantidad) {
         return;
     }
 
-    // Actualizamos el estado real desde Supabase
-    await obtenerBoletos();
-
     // Obtener únicamente números disponibles
     const disponibles = boletosDB
         .filter(boleto => boleto.estado === "disponible")
