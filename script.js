@@ -314,7 +314,7 @@ let intervaloActualizacion;
 
 async function accionElegir() {
 
-    await obtenerBoletos();
+    console.log("🎯 Abriendo selector de números...");
 
     generarPanelInicial();
 
