@@ -316,22 +316,11 @@ async function accionElegir() {
 
     await obtenerBoletos();
 
-generarPanelInicial();
+    generarPanelInicial();
 
-    // Ocultar logo
-    document.querySelector(".logo")
-        .classList.add("oculto");
+    document.querySelector(".logo").classList.add("oculto");
 
-    // Mostrar selector
-    document.getElementById("selector")
-        .classList.remove("hidden");
-
-   intervaloActualizacion = setInterval(async () => {
-
-    await obtenerBoletos();
-
-}, 5000);
-
+    document.getElementById("selector").classList.remove("hidden");
 }
 
 function accionAleatorio() {
