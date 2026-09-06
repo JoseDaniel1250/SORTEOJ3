@@ -490,7 +490,7 @@ function mezclarArray(array) {
 
 function generarPanelInicial(){
 
-    const panel = document.getElementById("panelNumeros");
+    const boleto = boletosPorNumero.get(numero);
 
     panel.innerHTML = "";
 
