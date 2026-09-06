@@ -274,7 +274,7 @@ let boletosDB = [];
 
 let numerosRenderizados = [];
 let siguienteNumero = 0;
-let siguienteNumero = 0;
+
 
 const TOTAL_NUMEROS = 10000;
 
