@@ -273,7 +273,7 @@ let boletosDB = [];
 /* NUEVO SELECTOR */
 
 let numerosRenderizados = [];
-
+let siguienteNumero = 0;
 let siguienteNumero = 0;
 
 const TOTAL_NUMEROS = 10000;
@@ -528,9 +528,7 @@ div.textContent = numero;
 div.id = "n-" + numero;
 
         // Buscar estado en la BD
-        const boleto = boletosDB.find(
-            b => b.numero === numero
-        );
+       const boleto = boletosPorNumero.get(numero);
 
         if(boleto && boleto.estado !== "disponible"){
 
@@ -929,15 +927,27 @@ async function obtenerBoletos() {
 
         boletosDB = todosLosBoletos;
 
-        console.log(
-            `🎟️ BOLETOS DEL SORTEO ${sorteoActivo.id}:`,
-            boletosDB
-        );
+        // Crear índice rápido por número
+boletosPorNumero.clear();
 
-        console.log(
-            "📊 TOTAL BOLETOS CARGADOS:",
-            boletosDB.length
-        );
+for (const boleto of boletosDB) {
+    boletosPorNumero.set(boleto.numero, boleto);
+}
+
+console.log(
+    `🎟️ BOLETOS DEL SORTEO ${sorteoActivo.id}:`,
+    boletosDB
+);
+
+console.log(
+    "📊 TOTAL BOLETOS CARGADOS:",
+    boletosDB.length
+);
+
+console.log(
+    "⚡ ÍNDICE DE BOLETOS:",
+    boletosPorNumero.size
+);
 
     } catch (error) {
 
@@ -983,21 +993,27 @@ function iniciarRealtimeBoletos() {
 
                 // Buscar el boleto dentro de nuestra memoria local
                 const indice = boletosDB.findIndex(
-                    boleto => boleto.numero === boletoActualizado.numero
-                );
+    boleto => boleto.numero === boletoActualizado.numero
+);
 
-                if (indice !== -1) {
+if (indice !== -1) {
 
-                    boletosDB[indice] = {
-                        ...boletosDB[indice],
-                        ...boletoActualizado
-                    };
+    boletosDB[indice] = {
+        ...boletosDB[indice],
+        ...boletoActualizado
+    };
 
-                } else {
+} else {
 
-                    boletosDB.push(boletoActualizado);
+    boletosDB.push(boletoActualizado);
 
-                }
+}
+
+// Actualizar también el índice rápido
+boletosPorNumero.set(
+    boletoActualizado.numero,
+    boletoActualizado
+);
 
                 console.log(
                     `🔄 Boleto ${boletoActualizado.numero} actualizado a: ${boletoActualizado.estado}`
