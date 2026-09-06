@@ -4,6 +4,10 @@ const SUPABASE_URL = "https://fyndoqudirtvgzsfxzwy.supabase.co";
 
 const SUPABASE_KEY = "sb_publishable_48ViGSfpwKTrZpBKET4sKw_BRKZAxbZ";
 
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
 
 /* =============================== */
 /* 🎰 OBTENER SORTEO ACTIVO */
@@ -50,6 +54,8 @@ async function obtenerSorteoActivo() {
         mostrarDatosSorteo();
 
         await obtenerBoletos();
+        
+iniciarRealtimeBoletos();
 
     } catch (error) {
 
@@ -705,67 +711,51 @@ function seleccionarNumero(elemento, numero){
 async function confirmarSeleccion() {
 
     if (numerosSeleccionados.length === 0) {
-
         alert("Selecciona al menos un número");
-
         return;
-
     }
 
-    const resultado =
-        await reservarNumeros(numerosSeleccionados);
+    console.log("🎟️ Intentando reservar:", numerosSeleccionados);
 
+    // Guardamos una copia de lo que el usuario intentó reservar
+    const numerosIntentados = [...numerosSeleccionados];
+
+    // Intentar reservar directamente en Supabase
+    const resultado = await reservarNumeros(numerosIntentados);
 
     if (!resultado) {
-
-        alert(
-            "❌ No fue posible realizar la reserva."
-        );
-
+        alert("❌ No fue posible realizar la reserva.");
         return;
-
     }
 
+    console.log("🎟️ Resultado de reserva manual:", resultado);
 
-    console.log(
-        "🎟️ Números reservados:",
-        resultado.numeros_reservados
-    );
+    const reservados = resultado.numeros_reservados || [];
+    const noReservados = resultado.no_reservados || [];
 
+    console.log("✅ Reservados:", reservados);
+    console.log("⚠️ No reservados:", noReservados);
 
-    console.log(
-        "⚠️ Números no reservados:",
-        resultado.no_reservados
-    );
-
-
-    /* =====================================
-       MOSTRAR SOLO LOS RESERVADOS
-       ===================================== */
-
-    const reservados =
-        resultado.numeros_reservados || [];
-
-
+    // Si ninguno pudo reservarse
     if (reservados.length === 0) {
 
         alert(
-            "⚠️ Ninguno de los números seleccionados está disponible."
+            "⚠️ Ninguno de los números seleccionados está disponible.\n\n" +
+            "Otro usuario pudo haberlos reservado."
         );
 
-        return;
+        // Actualizamos inmediatamente el estado visual
+        await obtenerBoletos();
 
+        generarPanelInicial();
+
+        numerosSeleccionados = [];
+        document.getElementById("contadorSeleccionados").textContent = "0";
+
+        return;
     }
 
-
-    /* =====================================
-       AVISAR SI ALGUNO FUE TOMADO
-       ===================================== */
-
-    const noReservados =
-        resultado.no_reservados || [];
-
-
+    // Si algunos fueron tomados por otro usuario
     if (noReservados.length > 0) {
 
         alert(
@@ -774,25 +764,26 @@ async function confirmarSeleccion() {
             "\n\nLos demás fueron reservados durante 10 minutos."
         );
 
+        // Actualizar la información del selector
+        await obtenerBoletos();
     }
 
+    // Mostrar únicamente los que realmente consiguió este usuario
+    numerosSeleccionados = [...reservados];
 
-    /* =====================================
-       MOSTRAR RESULTADOS
-       ===================================== */
+    console.log(
+        "🎯 Números que pasan a resultados:",
+        numerosSeleccionados
+    );
+
+    // Mostrar resultados
+    document.querySelector(".logo").classList.add("oculto");
+
+    document.getElementById("selector").classList.add("hidden");
+
+    document.getElementById("resultados").classList.remove("hidden");
 
     mostrarNumerosAnimados(reservados);
-
-
-    document
-        .getElementById("selector")
-        .classList.add("hidden");
-
-
-    document
-        .getElementById("resultados")
-        .classList.remove("hidden");
-
 }
 
 /* ===================== */
@@ -970,8 +961,142 @@ async function obtenerBoletos() {
 
 }
 
+function iniciarRealtimeBoletos() {
 
+    if (!sorteoActivo) {
+        console.warn("⚠️ No se puede iniciar Realtime: no hay sorteo activo.");
+        return;
+    }
 
+    console.log(
+        `📡 Iniciando Realtime para boletos del sorteo ${sorteoActivo.id}...`
+    );
+
+    supabaseClient
+        .channel(`boletos-sorteo-${sorteoActivo.id}`)
+        .on(
+            "postgres_changes",
+            {
+                event: "UPDATE",
+                schema: "public",
+                table: "boletos",
+                filter: `sorteo_id=eq.${sorteoActivo.id}`
+            },
+            (payload) => {
+
+                console.log("⚡ CAMBIO REALTIME:", payload);
+
+                const boletoActualizado = payload.new;
+
+                if (!boletoActualizado) {
+                    return;
+                }
+
+                // Buscar el boleto dentro de nuestra memoria local
+                const indice = boletosDB.findIndex(
+                    boleto => boleto.numero === boletoActualizado.numero
+                );
+
+                if (indice !== -1) {
+
+                    boletosDB[indice] = {
+                        ...boletosDB[indice],
+                        ...boletoActualizado
+                    };
+
+                } else {
+
+                    boletosDB.push(boletoActualizado);
+
+                }
+
+                console.log(
+                    `🔄 Boleto ${boletoActualizado.numero} actualizado a: ${boletoActualizado.estado}`
+                );
+
+                // Si el selector está abierto,
+                // actualizar visualmente el número
+                const selector = document.getElementById("selector");
+
+                if (
+                    selector &&
+                    !selector.classList.contains("hidden")
+                ) {
+                    actualizarNumeroVisual(
+                        boletoActualizado.numero,
+                        boletoActualizado.estado
+                    );
+                }
+            }
+        )
+        .subscribe((status, error) => {
+
+            console.log("📡 Estado Realtime:", status);
+
+            if (status === "SUBSCRIBED") {
+
+                console.log(
+                    `✅ Realtime conectado para sorteo ${sorteoActivo.id}`
+                );
+
+            }
+
+            if (
+                status === "CHANNEL_ERROR" ||
+                status === "TIMED_OUT"
+            ) {
+
+                console.error(
+                    "❌ Error conectando Realtime:",
+                    error
+                );
+
+            }
+
+        });
+}
+
+function actualizarNumeroVisual(numero, estado) {
+
+    const elemento = document.getElementById(`n-${numero}`);
+
+    if (!elemento) {
+        return;
+    }
+
+    // Número disponible
+    if (estado === "disponible") {
+
+        elemento.classList.remove("bloqueado");
+
+        elemento.classList.remove("seleccionado");
+
+        elemento.style.pointerEvents = "auto";
+
+        return;
+    }
+
+    // Número reservado o comprado
+    elemento.classList.add("bloqueado");
+
+    elemento.classList.remove("seleccionado");
+
+    elemento.style.pointerEvents = "none";
+
+    // Si el número estaba seleccionado localmente,
+    // eliminarlo de nuestra selección
+    numerosSeleccionados = numerosSeleccionados.filter(
+        numeroSeleccionado => numeroSeleccionado !== numero
+    );
+
+    const contador = document.getElementById(
+        "contadorSeleccionados"
+    );
+
+    if (contador) {
+        contador.textContent = numerosSeleccionados.length;
+    }
+}
 
 
 
