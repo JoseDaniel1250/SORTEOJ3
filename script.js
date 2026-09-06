@@ -411,66 +411,81 @@ function guardarEstado() {
 /* 🎯 GENERAR NÚMEROS ALEATORIOS */
 /* ===================== */
 
-function generarNumeros(cantidad){
+async function generarNumeros(cantidad) {
 
-    const resultados = document.getElementById("resultados");
+    console.log("🎲 Generando números aleatorios...");
 
-    // Ocultar logo
-    document.querySelector(".logo")
-        .classList.add("oculto");
-
-    resultados.classList.remove("hidden");
-
-    let disponibles = obtenerDisponibles();
-
-    if(disponibles.length===0){
-
-        alert("🔥 TODOS LOS NÚMEROS HAN SIDO TOMADOS");
-
+    if (!sorteoActivo) {
+        alert("❌ No existe un sorteo activo.");
         return;
-
     }
 
-    if(cantidad>disponibles.length){
+    // Actualizamos el estado real desde Supabase
+    await obtenerBoletos();
 
-        cantidad=disponibles.length;
+    // Obtener únicamente números disponibles
+    const disponibles = boletosDB
+        .filter(boleto => boleto.estado === "disponible")
+        .map(boleto => boleto.numero);
 
+    console.log("🎟️ Números disponibles:", disponibles.length);
+
+    if (disponibles.length === 0) {
+        alert("🔥 TODOS LOS NÚMEROS HAN SIDO TOMADOS");
+        return;
     }
 
-    const mezclados=mezclarArray(disponibles);
+    // Si solicitan más números de los disponibles
+    if (cantidad > disponibles.length) {
+        cantidad = disponibles.length;
+    }
 
-    const numerosFinales=mezclados.slice(0,cantidad);
+    // Mezclar números disponibles
+    const mezclados = mezclarArray([...disponibles]);
 
-    numerosFinales.forEach(num=>{
+    // Elegir cantidad solicitada
+    const candidatos = mezclados.slice(0, cantidad);
 
-        numerosUsados.add(num);
+    console.log("🎲 Números seleccionados aleatoriamente:", candidatos);
 
-    });
+    // Reservarlos realmente en Supabase
+    const resultado = await reservarNumeros(candidatos);
 
-    guardarEstado();
+    if (!resultado) {
+        alert("❌ No fue posible realizar la reserva.");
+        return;
+    }
 
-    // Mostrar usando el nuevo efecto premium
-    mostrarNumerosAnimados(numerosFinales);
+    console.log("🎟️ Resultado de la reserva aleatoria:", resultado);
 
+    const reservados = resultado.numeros_reservados || [];
+    const noReservados = resultado.no_reservados || [];
+
+    if (reservados.length === 0) {
+        alert("⚠️ Los números seleccionados ya no están disponibles. Intenta nuevamente.");
+        return;
+    }
+
+    // Informar si hubo una carrera con otro usuario
+    if (noReservados.length > 0) {
+        alert(
+            "⚠️ Algunos números ya fueron tomados:\n\n" +
+            noReservados.join(", ") +
+            "\n\nSe reservaron los demás."
+        );
+    }
+
+    console.log("✅ Números finalmente reservados:", reservados);
+
+    // Mostrar resultados
+    document.querySelector(".logo").classList.add("oculto");
+
+    document.getElementById("resultados").classList.remove("hidden");
+
+    mostrarNumerosAnimados(reservados);
 }
 
-/* ===================== */
-/* 🎯 OBTENER DISPONIBLES */
-/* ===================== */
 
-function obtenerDisponibles() {
-    const disponibles = [];
-
-    for (let i = 0; i < 10000; i++) {
-        const num = i.toString().padStart(4, "0");
-
-        if (!numerosUsados.has(num)) {
-            disponibles.push(num);
-        }
-    }
-
-    return disponibles;
-}
 
 /* ===================== */
 /* 🎯 MEZCLAR ARRAY */
