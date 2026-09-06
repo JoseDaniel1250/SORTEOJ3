@@ -490,6 +490,8 @@ function mezclarArray(array) {
 
 function generarPanelInicial() {
 
+    const panel = document.getElementById("panelNumeros");
+
     panel.innerHTML = "";
 
     numerosSeleccionados = [];
