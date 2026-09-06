@@ -386,7 +386,7 @@ function cerrarModal() {
 /* 🎯 CONFIRMAR ALEATORIO */
 /* ===================== */
 
-function confirmar() {
+async function confirmar() {
     let cantidad = document.getElementById("cantidad").value;
 
     if (cantidad === "" || cantidad <= 0) {
@@ -395,7 +395,8 @@ function confirmar() {
     }
 
     cerrarModal();
-    generarNumeros(parseInt(cantidad));
+
+    await generarNumeros(parseInt(cantidad));
 }
 
 /* ===================== */
