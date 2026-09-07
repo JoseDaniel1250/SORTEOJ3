@@ -502,11 +502,3 @@ font-weight:700;
 
 }
 }
-
-/*ESTA PARTE SE AGREGO PARA IDENTIFICAR EL ESPACIO PERDIDO DE CADA
-BOTON Y ASI PODER PRECEISAR LA SENCIBILIDAD AL MOMENTO DE PULSARLOS*/
-
-.btn-elegir,
-.btn-aleatorio {
-    outline: 3px solid red;
-}
