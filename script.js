@@ -260,6 +260,62 @@ async function reservarNumeros(numeros) {
 
 }
 
+/* LIBERA LOS NUMEROS CUANDO EL US PRESIONA "CANCELAR" */
+
+async function liberarReservaNumeros(numeros) {
+
+    if (!sorteoActivo) {
+        console.error("❌ No existe un sorteo activo.");
+        return null;
+    }
+
+    if (!numeros || numeros.length === 0) {
+        console.warn("⚠️ No hay números para liberar.");
+        return null;
+    }
+
+    try {
+
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/rpc/liberar_reserva_boletos`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    apikey: SUPABASE_KEY,
+                    Authorization: `Bearer ${SUPABASE_KEY}`
+                },
+                body: JSON.stringify({
+                    p_sorteo_id: sorteoActivo.id,
+                    p_numeros: numeros
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+
+            console.error("❌ Error liberando la reserva:", data);
+
+            return null;
+        }
+
+        console.log("🔓 RESULTADO LIBERACIÓN:", data);
+
+        return data;
+
+    } catch (error) {
+
+        console.error(
+            "❌ Error conectando con la liberación:",
+            error
+        );
+
+        return null;
+    }
+}
+
 probarConexion();
 /* ===================== */
 /* 🎯 VARIABLES GLOBALES */
@@ -325,7 +381,36 @@ function accionAleatorio() {
     abrirModal();
 }
 
-function cancelarResultados(){
+async function cancelarResultados() {
+
+    console.log(
+        "🔓 Cancelando reserva:",
+        numerosSeleccionados
+    );
+
+    const numerosAliberar = [...numerosSeleccionados];
+
+    if (numerosAliberar.length > 0) {
+
+        const resultado = await liberarReservaNumeros(
+            numerosAliberar
+        );
+
+        if (!resultado) {
+
+            alert(
+                "❌ No fue posible cancelar la reserva.\n\n" +
+                "Intenta nuevamente."
+            );
+
+            return;
+        }
+
+        console.log(
+            "✅ Números liberados:",
+            resultado.numeros_liberados
+        );
+    }
 
     document.getElementById("resultados")
         .classList.add("hidden");
@@ -340,6 +425,8 @@ function cancelarResultados(){
         .classList.remove("oculto");
 
     clearInterval(intervaloActualizacion);
+
+    numerosSeleccionados = [];
 
 }
 
