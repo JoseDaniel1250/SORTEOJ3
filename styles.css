@@ -151,9 +151,13 @@ body{
 }
 .btn-pesos{width:190px;}
 
-.btn-elegir,.btn-pesos,.btn-aleatorio{
-    cursor:pointer;
-    transition:.15s;
+.btn-elegir,
+.btn-aleatorio {
+    cursor: pointer;
+    transition: .15s;
+
+    /* Limita el área interactiva a la zona real del botón */
+    clip-path: inset(34.77% 7.71% 34.08% 7.71%);
 }
 
 .btn-elegir:hover,.btn-pesos:hover,.btn-aleatorio:hover{transform:scale(1.05);}
@@ -499,8 +503,8 @@ font-weight:700;
 }
 }
 
-/*ESTA PARTE SE AGREGO PARA CORREGIR EL ESPACIO DE SENCIBILIDAD 
-DE LOS BOTONES ELEGUIR Y ALEATORIO*/
+/*ESTA PARTE SE AGREGO PARA IDENTIFICAR EL ESPACIO PERDIDO DE CADA
+BOTON Y ASI PODER PRECEISAR LA SENCIBILIDAD AL MOMENTO DE PULSARLOS*/
 
 .btn-elegir,
 .btn-aleatorio {
