@@ -142,7 +142,13 @@ body{
 
 }
 
-.btn-elegir,.btn-aleatorio{width:250px;}
+.btn-elegir,
+.btn-aleatorio {
+    width: 250px;
+    display: block;
+    cursor: pointer;
+    transition: .15s;
+}
 .btn-pesos{width:190px;}
 
 .btn-elegir,.btn-pesos,.btn-aleatorio{
@@ -491,4 +497,12 @@ font-weight:700;
     height:200px;
 
 }
+}
+
+/*ESTA PARTE SE AGREGO PARA CORREGIR EL ESPACIO DE SENCIBILIDAD 
+DE LOS BOTONES ELEGUIR Y ALEATORIO*/
+
+.btn-elegir,
+.btn-aleatorio {
+    outline: 3px solid red;
 }
