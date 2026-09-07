@@ -554,12 +554,12 @@ async function generarNumeros(cantidad) {
 
     console.log("✅ Números finalmente reservados:", reservados);
 
-    // Mostrar resultados
-    document.querySelector(".logo").classList.add("oculto");
+numerosSeleccionados = [...reservados];
 
-    document.getElementById("resultados").classList.remove("hidden");
-
-    mostrarNumerosAnimados(reservados);
+// Mostrar resultados
+document.querySelector(".logo").classList.add("oculto");
+document.getElementById("resultados").classList.remove("hidden");
+mostrarNumerosAnimados(reservados);
 }
 
 
